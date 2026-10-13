@@ -1,4 +1,4 @@
-# Шаг 2: Добавлены проверки входных данных
+# Шаг 3: Добавлена обработка ошибок через try-except
 def parse_record(line: str) -> dict:
     parts = line.split(";")
     
