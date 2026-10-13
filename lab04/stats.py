@@ -1,3 +1,4 @@
+# Шаг 2: Добавлены проверки входных данных
 def parse_record(line: str) -> dict:
     parts = line.split(";")
     
