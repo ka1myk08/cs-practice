@@ -4,7 +4,11 @@ from stats import average_by_city, read_valid, warmest_city
 def main():
     lines = sys.stdin.read().splitlines()
     
-    valid_records, errors_count = read_valid(lines)
+    empty_lines_count = sum(1 for line in lines if not line.strip())
+    
+    valid_records = read_valid(lines)
+    
+    errors_count = len(lines) - empty_lines_count - len(valid_records)
 
     averages = average_by_city(valid_records)
     best_city = warmest_city(valid_records)
