@@ -24,7 +24,13 @@ def parse_record(line: str) -> dict:
 def read_valid(lines: list[str]) -> list[dict]:
     result = []
     for line in lines:
-        result.append(parse_record(line))
+        if line.strip() == "":
+            continue
+        try:
+            record = parse_record(line)
+            result.append(record)
+        except ValueError:
+            pass
     return result
     
     
