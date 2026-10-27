@@ -4,10 +4,21 @@ from stats import average_by_city, read_valid, warmest_city
 
 lines = sys.stdin.read().splitlines()
 
+non_empty = 0
+for line in lines:
+    if line.strip() != "":
+        non_empty += 1
+
 records = read_valid(lines)
-best = warmest_city(records)
-averages = average_by_city(records)
+skipped = non_empty - len(records)
 
 print(len(records))
-print(0)
-print(averages[best])
+print(skipped)
+
+if len(records) > 0:
+    best = warmest_city(records)
+    averages = average_by_city(records)
+    print(f"{averages[best]:.1f}")
+else:
+    print("0.0")
+    
