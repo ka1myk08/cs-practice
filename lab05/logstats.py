@@ -67,3 +67,4 @@ def format_report(counts, errors):
         text += "- " + pair[0] + " — " + str(pair[1]) + "\n"
     return text
 
+
