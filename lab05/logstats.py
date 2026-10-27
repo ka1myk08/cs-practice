@@ -12,3 +12,19 @@ def parse_event(line):
 
     return {"time": time, "level": level, "message": message}
 
+
+def count_levels(lines):
+    counts = {}
+    for line in lines:
+        if line.strip() == "":
+            continue
+        try:
+            event = parse_event(line)
+            key = event["level"]
+        except ValueError:
+            key = "BROKEN"
+        if key not in counts:
+            counts[key] = 0
+        counts[key] += 1
+    return counts
+
