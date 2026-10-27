@@ -1,6 +1,24 @@
 def parse_record(line: str) -> dict:
-    city, temp, date = line.spli(";")
-    return {"city": city, "temperature": float(temp), "date": date}
+    parts = line.split(";")
+    if len(parts) != 3:
+        raise ValueError("нужно ровно три поля")
+    
+    city = parts[0].strip()
+    temperature = parts[1].strip()
+    date = parts[2].strip()
+    
+    if city == "":
+        raise ValueError("город пустой")
+    
+    if date == "":
+        raise ValueError("дата пустая")
+    
+    try:
+        temp = float(temperature)
+    except ValueError:
+        raise ValueError("температура не является числом")
+    
+    return {"city": city, "temp": temp, "date": date}
 
       
 def read_valid(lines: list[str]) -> list[dict]:
