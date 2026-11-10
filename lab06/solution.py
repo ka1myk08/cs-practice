@@ -5,8 +5,8 @@ def count_by_extension(paths: list[str]) -> dict[str, int]:
     for path in paths:
         name = path.split("/")[-1]
         
-        if '.' in path:
-            side = name.rsplit('.', 1)[-1].lower()
+        if '.' in name:
+            side = name.split('.')[-1].lower()
         else:
             side = ""
             
@@ -25,7 +25,7 @@ def deepest_path(paths: list[str]) -> str:
     if len(paths) == 0:
         return ""
     
-    best_path = path[0]
+    best_path = paths[0]
     best_dpath = best_path.count('/')
     
     for path in paths:
@@ -44,6 +44,9 @@ def deepest_path(paths: list[str]) -> str:
 
 def human_size(n_bytes: int) -> str:
     
+    if n_bytes < 1024:
+            return f"{n_bytes:.1f} Б"
+    
     names = ["Б", "КБ", "МБ", "ГБ", "ТБ"]
     size_bytes = float(n_bytes)
     index = 0
@@ -51,12 +54,8 @@ def human_size(n_bytes: int) -> str:
     while size_bytes >= 1024 and index < 4:
         size_bytes = size_bytes / 1024
         index += 1
-        
-    if index == 0:
-        return f"{size_bytes:.1f} Б"
 
-    else:
-        return f"{size_bytes:.1f} {names[index]}"
+    return f"{size_bytes:.1f} {names[index]}"
     
         
         
