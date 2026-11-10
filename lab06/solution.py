@@ -35,7 +35,7 @@ def deepest_path(paths: list[str]) -> str:
             best_path = path
             best_dpath = dpath
             
-        elif dpath == best_path and path < best_path:
+        elif dpath == best_dpath and path < best_path:
             best_path = path
             
     return best_path
@@ -45,7 +45,7 @@ def deepest_path(paths: list[str]) -> str:
 def human_size(n_bytes: int) -> str:
     
     if n_bytes < 1024:
-            return f"{n_bytes:.1f} Б"
+            return f"{n_bytes} Б"
     
     names = ["Б", "КБ", "МБ", "ГБ", "ТБ"]
     size_bytes = float(n_bytes)
