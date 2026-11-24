@@ -19,7 +19,11 @@ def csv_to_records(text: str) -> list[dict]:
     return records
 
 
-def parse_settings(lines: list[str]) -> dict:
+def parse_settings(lines: list[str] | str) -> dict:
+    # ИСПРАВЛЕНИЕ 1: Если пришла строка, разбиваем её на список строк
+    if isinstance(lines, str):
+        lines = lines.splitlines()
+
     def parse_value(raw: str):
         val = raw.strip()
         if val in ("true", "yes"):
@@ -28,21 +32,26 @@ def parse_settings(lines: list[str]) -> dict:
             return False
 
         unsigned = val[1:] if val.startswith(("-", "+")) else val
+        
         if unsigned.isdigit():
             return int(val)
-        if unsigned.count(".") == 1:
-            left, right = unsigned.split(".")
+            
+        # ИСПРАВЛЕНИЕ 2: Поддержка как точки, так и запятой для float
+        if unsigned.count(".") == 1 or unsigned.count(",") == 1:
+            # Заменяем запятую на точку для корректного парсинга
+            normalized_val = val.replace(",", ".")
+            unsigned_norm = unsigned.replace(",", ".")
+            left, right = unsigned_norm.split(".")
             if left.isdigit() and right.isdigit():
-                return float(val)
+                return float(normalized_val)
+                
         return val
 
     result = {}
     current_list = None
 
-    if isinstance(lines, str):
-        lines = [lines]
-
     for line in lines:
+        # Защита от вложенных списков (на всякий случай)
         if isinstance(line, list):
             nested_result = parse_settings(line)
             for k, v in nested_result.items():
@@ -96,7 +105,4 @@ def merge_by_key(rows: list[dict], extra: dict, key: str = "id") -> list[dict]:
 
 def records_to_json(records: list[dict]) -> str:
     return json.dumps(records, ensure_ascii=False, indent=2, sort_keys=True)
-
-
-
 
