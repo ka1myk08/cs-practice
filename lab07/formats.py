@@ -37,18 +37,17 @@ def convert_value(val: str):
     if low == "false" or low == "no":
         return False
 
+    # Защита от inf, nan и чисел с подчёркиванием (1_000), которые Python считает числами
+    if "_" not in val and low not in ("inf", "-inf", "+inf", "infinity", "-infinity", "+infinity", "nan", "-nan", "+nan"):
+        try:
+            return int(val)
+        except ValueError:
+            pass
 
-    try:
-        return int(val)
-    except ValueError:
-        pass
-
-
-    try:
-        return float(val)
-    except ValueError:
-        pass
-
+        try:
+            return float(val)
+        except ValueError:
+            pass
 
     return val
 
@@ -65,8 +64,8 @@ def parse_settings(lines: list[str]) -> dict:
         if clean_line == "":
             continue
 
-        if clean_line.startswith("- "):
-            item = clean_line[2:]
+        if clean_line.startswith("- ") or clean_line == "-":
+            item = clean_line[1:].strip()
             if current_list_name != "":
                 result[current_list_name].append(convert_value(item))
         elif ":" in clean_line:
