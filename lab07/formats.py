@@ -35,10 +35,12 @@ def parse_settings(lines) -> dict:
         if unsigned.isdigit():
             return int(val)
             
-        if unsigned.count(".") == 1:
-            left, right = unsigned.split(".")
-            if left.isdigit() and right.isdigit():
-                return float(val)
+        if unsigned.count(".") == 1 or unsigned.count(",") == 1:
+            normalized = val.replace(",", ".")
+            un_norm = unsigned.replace(",", ".")
+            parts = un_norm.split(".")
+            if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit():
+                return float(normalized)
                 
         return val
 
@@ -46,15 +48,6 @@ def parse_settings(lines) -> dict:
     current_list = None
 
     for line in lines:
-        if isinstance(line, (list, tuple)):
-            nested = parse_settings(line)
-            for k, v in nested.items():
-                if k in result and isinstance(result[k], list) and isinstance(v, list):
-                    result[k].extend(v)
-                else:
-                    result[k] = v
-            continue
-            
         if not isinstance(line, str):
             continue
 
@@ -100,4 +93,3 @@ def merge_by_key(rows: list[dict], extra: dict, key: str = "id") -> list[dict]:
 
 def records_to_json(records: list[dict]) -> str:
     return json.dumps(records, ensure_ascii=False, indent=2, sort_keys=True)
-
