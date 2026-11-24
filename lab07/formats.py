@@ -1,6 +1,5 @@
 import json
 
-
 def csv_to_records(text: str) -> list[dict]:
     lines = [line.strip() for line in text.strip().splitlines() if line.strip()]
     if len(lines) < 2:
@@ -35,15 +34,30 @@ def parse_settings(lines: list[str]) -> dict:
             left, right = unsigned.split(".")
             if left.isdigit() and right.isdigit():
                 return float(val)
-
         return val
 
     result = {}
     current_list = None
 
+    if isinstance(lines, str):
+        lines = [lines]
+
     for line in lines:
+        if isinstance(line, list):
+            nested_result = parse_settings(line)
+            for k, v in nested_result.items():
+                if k in result and isinstance(result[k], list) and isinstance(v, list):
+                    result[k].extend(v)
+                else:
+                    result[k] = v
+            continue
+        
+        if not isinstance(line, str):
+            continue
+
         if "#" in line:
-            line, _ = line.split("#", 1)
+            line = line.split("#", 1)[0]
+            
         clean = line.strip()
         if not clean:
             continue
