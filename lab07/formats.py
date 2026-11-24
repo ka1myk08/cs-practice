@@ -7,7 +7,7 @@ def csv_to_records(text: str) -> list[dict]:
         return []
 
     lines = text.split("\n")
-    raw_headers = lines.split(",")
+    raw_headers = lines[0].split(",")
     headers = []
     for h in raw_headers:
         headers.append(h.strip())
@@ -60,7 +60,7 @@ def parse_settings(lines: list[str]) -> dict:
     for line in lines:
         if "#" in line:
             parts = line.split("#")
-            line = parts
+            line = parts[0]
 
 
         if line.strip() == "":
@@ -74,7 +74,7 @@ def parse_settings(lines: list[str]) -> dict:
             result[current_list_name].append(convert_value(item))
         else:
             parts = clean_line.split(":", 1)
-            key = parts.strip()
+            key = parts[0].strip()
             val = parts[1].strip()
 
             if val == "":
