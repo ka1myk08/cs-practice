@@ -19,8 +19,7 @@ def csv_to_records(text: str) -> list[dict]:
     return records
 
 
-def parse_settings(lines: list[str] | str) -> dict:
-    # ИСПРАВЛЕНИЕ 1: Если пришла строка, разбиваем её на список строк
+def parse_settings(lines) -> dict:
     if isinstance(lines, str):
         lines = lines.splitlines()
 
@@ -36,14 +35,10 @@ def parse_settings(lines: list[str] | str) -> dict:
         if unsigned.isdigit():
             return int(val)
             
-        # ИСПРАВЛЕНИЕ 2: Поддержка как точки, так и запятой для float
-        if unsigned.count(".") == 1 or unsigned.count(",") == 1:
-            # Заменяем запятую на точку для корректного парсинга
-            normalized_val = val.replace(",", ".")
-            unsigned_norm = unsigned.replace(",", ".")
-            left, right = unsigned_norm.split(".")
+        if unsigned.count(".") == 1:
+            left, right = unsigned.split(".")
             if left.isdigit() and right.isdigit():
-                return float(normalized_val)
+                return float(val)
                 
         return val
 
@@ -51,16 +46,15 @@ def parse_settings(lines: list[str] | str) -> dict:
     current_list = None
 
     for line in lines:
-        # Защита от вложенных списков (на всякий случай)
-        if isinstance(line, list):
-            nested_result = parse_settings(line)
-            for k, v in nested_result.items():
+        if isinstance(line, (list, tuple)):
+            nested = parse_settings(line)
+            for k, v in nested.items():
                 if k in result and isinstance(result[k], list) and isinstance(v, list):
                     result[k].extend(v)
                 else:
                     result[k] = v
             continue
-        
+            
         if not isinstance(line, str):
             continue
 
@@ -81,6 +75,7 @@ def parse_settings(lines: list[str] | str) -> dict:
             key, val = clean.split(":", 1)
             key = key.strip()
             val = val.strip()
+            
             if val == "":
                 result[key] = []
                 current_list = key
