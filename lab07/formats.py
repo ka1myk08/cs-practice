@@ -7,13 +7,12 @@ def csv_to_records(text: str) -> list[dict]:
         return []
 
     lines = text.split("\n")
-    raw_headers = lines[0].split(",")
+    raw_headers = lines.split(",")
     headers = []
     for h in raw_headers:
         headers.append(h.strip())
 
     records = []
-
     for line in lines[1:]:
         if line.strip() == "":
             continue
@@ -28,30 +27,6 @@ def csv_to_records(text: str) -> list[dict]:
     return records
 
 
-def convert_value(val: str):
-    val = val.strip()
-    low = val.lower()
-
-    if low == "true" or low == "yes":
-        return True
-    if low == "false" or low == "no":
-        return False
-
-    # Защита от inf, nan и чисел с подчёркиванием (1_000), которые Python считает числами
-    if "_" not in val and low not in ("inf", "-inf", "+inf", "infinity", "-infinity", "+infinity", "nan", "-nan", "+nan"):
-        try:
-            return int(val)
-        except ValueError:
-            pass
-
-        try:
-            return float(val)
-        except ValueError:
-            pass
-
-    return val
-
-
 def parse_settings(lines: list[str]) -> dict:
     result = {}
     current_list_name = ""
@@ -64,21 +39,53 @@ def parse_settings(lines: list[str]) -> dict:
         if clean_line == "":
             continue
 
-        if clean_line.startswith("- ") or clean_line == "-":
-            item = clean_line[1:].strip()
-            if current_list_name != "":
-                result[current_list_name].append(convert_value(item))
+        is_list_item = False
+        key = ""
+        raw_val = ""
+
+        if clean_line.startswith("-"):
+            if current_list_name == "":
+                continue
+            is_list_item = True
+            raw_val = clean_line[1:].strip()
         elif ":" in clean_line:
             key, val = clean_line.split(":", 1)
             key = key.strip()
-            val = val.strip()
+            raw_val = val.strip()
 
-            if val == "":
+            if raw_val == "":
                 result[key] = []
                 current_list_name = key
+                continue
             else:
-                result[key] = convert_value(val)
                 current_list_name = ""
+        else:
+            continue
+
+        low = raw_val.lower()
+        num_check = raw_val
+        if num_check.startswith("-") or num_check.startswith("+"):
+            num_check = num_check[1:]
+
+        if low == "true" or low == "yes":
+            converted = True
+        elif low == "false" or low == "no":
+            converted = False
+        elif num_check.isdigit():
+            converted = int(raw_val)
+        elif num_check.count(".") == 1:
+            left, right = num_check.split(".")
+            if left.isdigit() and right.isdigit():
+                converted = float(raw_val)
+            else:
+                converted = raw_val
+        else:
+            converted = raw_val
+
+        if is_list_item:
+            result[current_list_name].append(converted)
+        else:
+            result[key] = converted
 
     return result
 
@@ -104,8 +111,7 @@ def merge_by_key(rows: list[dict], extra: dict, key: str = "id") -> list[dict]:
 
 
 def records_to_json(records: list[dict]) -> str:
-
-
     return json.dumps(records, ensure_ascii=False, indent=2, sort_keys=True)
+
 
 
